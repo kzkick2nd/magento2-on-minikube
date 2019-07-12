@@ -29,3 +29,9 @@ $ kubectl create deployment hello-node --image=local/hello-node:v1.0
 $ docker build -t local/image:v1.1 .
 $ kubectl set image deployments/hello-node hello-node=locl/image:v1.1
 $ kubectl describe pods
+
+# Cleanup
+$ kubectl delete service hello-node
+$ kubectl delete deployment hello-node
+$ minikube stop
+$ minikube delete
