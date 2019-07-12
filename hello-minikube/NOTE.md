@@ -22,3 +22,7 @@ $ minikube addons disable heapster
 # Cleanup
 $ kubectl delete service hello-node
 $ kubectl delete deployment hello-node
+
+# Update
+$ kubectl set image deployments/hello-node hello-node/image-name
+$ kubectl describe pods
