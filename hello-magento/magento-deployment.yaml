@@ -1,23 +1,23 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: wordpress
+  name: magento
   labels:
-    app: wordpress
+    app: magento
 spec:
   ports:
     - port: 80
   selector:
-    app: wordpress
+    app: magento
     tier: frontend
   type: LoadBalancer
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: wp-pv-claim
+  name: magento-pv-claim
   labels:
-    app: wordpress
+    app: magento
 spec:
   accessModes:
     - ReadWriteOnce
@@ -28,40 +28,42 @@ spec:
 apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
-  name: wordpress
+  name: magento
   labels:
-    app: wordpress
+    app: magento
 spec:
   selector:
     matchLabels:
-      app: wordpress
+      app: magento
       tier: frontend
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: wordpress
+        app: magento
         tier: frontend
     spec:
       containers:
-      - image: wordpress:4.8-apache
-        name: wordpress
+      - image: bitnami/magento:2
+        name: magento
         env:
-        - name: WORDPRESS_DB_HOST
-          value: wordpress-mysql
-        - name: WORDPRESS_DB_PASSWORD
+        - name: MARIADB_HOST
+          value: magento-mysql
+        - name: MAGENTO_DATABASE_USER
+          value: root
+        - name: MAGENTO_DATABASE_PASSWORD
           valueFrom:
             secretKeyRef:
               name: mysql-pass
               key: password
         ports:
         - containerPort: 80
-          name: wordpress
+          name: magento
         volumeMounts:
-        - name: wordpress-persistent-storage
+        - name: magento-persistent-storage
           mountPath: /var/www/html
       volumes:
-      - name: wordpress-persistent-storage
+      - name: magento-persistent-storage
         persistentVolumeClaim:
-          claimName: wp-pv-claim
+          claimName: magento-pv-claim
