@@ -10,3 +10,11 @@ Add resource configs for MySQL and WordPress
     deployements を2つ追加
     kustomization.yaml に resources を追加
 
+Apply and Verify
+    $ kubectl apply -k ./
+    $ kubectl get secrets
+    $ kubectl get pvc
+    $ kubectl get pods
+    $ kubectl get services wordpress
+    $ minikube service wordpress --url
+    $ kubectl delete -k ./
