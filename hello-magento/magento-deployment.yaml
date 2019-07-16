@@ -23,7 +23,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 20Gi
+      storage: 10Gi
 ---
 apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
@@ -45,18 +45,17 @@ spec:
         tier: frontend
     spec:
       containers:
-      - image: bitnami/magento:2
+      - image: bitnami/magento:2-ol-7
         name: magento
         env:
         - name: MARIADB_HOST
-          value: magento-mysql
+          value: 'magento-mariadb'
+        - name: MARIADB_PORT_NUMBER
+          value: '3306'
         - name: MAGENTO_DATABASE_USER
-          value: root
+          value: 'bn_magento'
         - name: MAGENTO_DATABASE_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mysql-pass
-              key: password
+          value: 'magento_db_password'
         ports:
         - containerPort: 80
           name: magento

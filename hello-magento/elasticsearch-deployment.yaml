@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: magento-elasticsearch
+  labels:
+    app: magento
+spec:
+  ports:
+    - port: 9200
+  selector:
+    app: magento
+    tier: elasticsearch
+  clusterIP: None
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: elasticsearch-pv-claim
+  labels:
+    app: magento
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: magento-elasticsearch
+  labels:
+    app: magento
+spec:
+  selector:
+    matchLabels:
+      app: magento
+      tier: elasticsearch
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: magento
+        tier: elasticsearch
+    spec:
+      containers:
+      - image: 'bitnami/elasticsearch:6'
+        name: elasticsearch
+        ports:
+        - containerPort: 9200
+          name: elasticsearch
+        volumeMounts:
+        - name: elasticsearch-persistent-storage
+          mountPath: /var/lib/elasticsearch
+      volumes:
+      - name: elasticsearch-persistent-storage
+        persistentVolumeClaim:
+          claimName: elasticsearch-pv-claim

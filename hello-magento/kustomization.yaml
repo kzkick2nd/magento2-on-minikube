@@ -1,7 +1,4 @@
-secretGenerator:
-- name: mysql-pass
-  literals:
-  - password=Passw0rd!
 resources:
-  - mysql-deployment.yaml
+  - mariadb-deployment.yaml
   - magento-deployment.yaml
+  # - elasticsearch-deployment.yaml
