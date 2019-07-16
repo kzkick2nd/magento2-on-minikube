@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: magento
+  labels:
+    app: magento
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: magento
+    tier: frontend
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: magento-pv-claim
+  labels:
+    app: magento
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: magento
+  labels:
+    app: magento
+spec:
+  selector:
+    matchLabels:
+      app: magento
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: magento
+        tier: frontend
+    spec:
+      containers:
+      - image: bitnami/magento:2-ol-7
+        name: magento
+        env:
+        - name: MARIADB_HOST
+          value: 'magento-mariadb'
+        - name: MARIADB_PORT_NUMBER
+          value: '3306'
+        - name: MAGENTO_DATABASE_USER
+          value: 'bn_magento'
+        - name: MAGENTO_DATABASE_PASSWORD
+          value: 'magento_db_password'
+        ports:
+        - containerPort: 80
+          name: magento
+        volumeMounts:
+        - name: magento-persistent-storage
+          mountPath: /var/www/html
+      volumes:
+      - name: magento-persistent-storage
+        persistentVolumeClaim:
+          claimName: magento-pv-claim

@@ -1,0 +1,4 @@
+resources:
+  - mariadb-deployment.yaml
+  - magento-deployment.yaml
+  # - elasticsearch-deployment.yaml

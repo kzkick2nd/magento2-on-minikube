@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: magento-mariadb
+  labels:
+    app: magento
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: magento
+    tier: mariadb
+  clusterIP: None
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mariadb-pv-claim
+  labels:
+    app: magento
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: magento-mariadb
+  labels:
+    app: magento
+spec:
+  selector:
+    matchLabels:
+      app: magento
+      tier: mariadb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: magento
+        tier: mariadb
+    spec:
+      containers:
+      - image: bitnami/mariadb:10.2-ol-7
+        name: mariadb
+        env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: 'yes'
+        - name: MARIADB_USER
+          value: 'bn_magento'
+        - name: MARIADB_PASSWORD
+          value: 'magento_db_password'
+        - name: MARIADB_DATABASE
+          value: 'bitnami_magento'
+        ports:
+        - containerPort: 3306
+          name: mariadb
+        volumeMounts:
+        - name: mariadb-persistent-storage
+          mountPath: /var/lib/mariadb
+      volumes:
+      - name: mariadb-persistent-storage
+        persistentVolumeClaim:
+          claimName: mariadb-pv-claim
